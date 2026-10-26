@@ -1,0 +1,9 @@
+{
+  "name": "MyLedger - Personal Money Manager",
+  "short_name": "MyLedger",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f7f6",
+  "theme_color": "#0f766e",
+  "description": "Personal income, expense, savings and udhaar tracker in Pakistani Rupees (PKR)."
+}

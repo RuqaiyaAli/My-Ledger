@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="MyLedger">
+<link rel="manifest" href="manifest.json">
+<title>MyLedger</title>
+<style>
+:root{--teal:#0f766e;--teal2:#115e59;--bg:#f4f7f6;--card:#fff;--text:#172523;--muted:#667773;--line:#e1e9e6;--green:#16804a;--red:#b42318;--gold:#9a6700}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);padding-bottom:calc(82px + env(safe-area-inset-bottom))}
+header{background:linear-gradient(135deg,var(--teal2),var(--teal));color:#fff;padding:calc(18px + env(safe-area-inset-top)) 18px 22px;border-radius:0 0 24px 24px}
+.brand{font-size:23px;font-weight:800;letter-spacing:-.5px}.sub{opacity:.82;font-size:13px;margin-top:4px}.month{margin-top:18px;font-size:13px;opacity:.85}.balance-label{font-size:13px;opacity:.85;margin-top:10px}.balance{font-size:32px;font-weight:800;margin-top:3px}
+main{padding:16px;max-width:650px;margin:auto}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 2px 8px #1231}.card-label{font-size:12px;color:var(--muted)}.amount{font-size:19px;font-weight:750;margin-top:7px;overflow-wrap:anywhere}.positive{color:var(--green)}.negative{color:var(--red)}.section-head{display:flex;align-items:center;justify-content:space-between;margin:22px 0 10px}.section-head h2{font-size:17px;margin:0}.small-btn,.primary,.secondary{border:0;border-radius:12px;padding:11px 13px;font-weight:700;font-size:14px;cursor:pointer}.primary{background:var(--teal);color:white;width:100%}.secondary,.small-btn{background:#e1f2ee;color:var(--teal2)}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.action{display:flex;align-items:center;gap:10px;text-align:left;background:white;border:1px solid var(--line);border-radius:14px;padding:13px 10px;font-weight:700;color:var(--text);cursor:pointer}.action .emoji{font-size:22px}.action small{display:block;font-weight:500;color:var(--muted);margin-top:3px}.tabs{position:fixed;bottom:0;left:0;right:0;background:#ffffffee;backdrop-filter:blur(15px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:9px 5px calc(9px + env(safe-area-inset-bottom));z-index:5}.tab{border:0;background:transparent;color:var(--muted);font-size:11px;font-weight:650;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:60px}.tab span{font-size:20px}.tab.active{color:var(--teal)}.list{display:flex;flex-direction:column;gap:8px}.item{background:white;border:1px solid var(--line);border-radius:13px;padding:12px;display:flex;gap:10px;align-items:center;justify-content:space-between}.item-title{font-weight:700;font-size:14px}.item-meta{font-size:12px;color:var(--muted);margin-top:4px}.item-amount{font-weight:800;white-space:nowrap}.empty{padding:22px;text-align:center;color:var(--muted);font-size:13px;background:#fff;border:1px dashed var(--line);border-radius:14px}
+label{display:block;font-size:13px;font-weight:650;margin:12px 0 6px}input,select,textarea{width:100%;border:1px solid #cddbd6;border-radius:11px;padding:12px;font-size:16px;background:#fff;color:var(--text)}textarea{min-height:70px;resize:vertical}.form-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.notice{font-size:12px;line-height:1.5;color:var(--muted);background:#e9f5f2;border-radius:12px;padding:12px;margin-top:12px}.hidden{display:none!important}.pill{font-size:11px;background:#eaf4f1;color:var(--teal2);padding:4px 8px;border-radius:20px;display:inline-block}.filters{display:flex;gap:8px;margin-bottom:10px}.filters select{font-size:14px;padding:9px}.report-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}.report-row:last-child{border:0}.danger{background:#fff0ee;color:var(--red)}.backup{display:grid;gap:9px;margin-top:12px}#toast{position:fixed;bottom:95px;left:16px;right:16px;background:#183b35;color:white;padding:12px;border-radius:12px;text-align:center;display:none;z-index:10}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">📒 MyLedger</div><div class="sub">Your money, clearly counted · PKR only</div>
+  <div class="month" id="headerMonth"></div>
+  <div class="balance-label">Estimated cash balance</div><div class="balance" id="cashBalance">Rs. 0</div>
+</header>
+<main>
+  <section id="homePage">
+    <div class="grid">
+      <div class="card"><div class="card-label">Income this month</div><div class="amount positive" id="incomeTotal">Rs. 0</div></div>
+      <div class="card"><div class="card-label">Expenses this month</div><div class="amount negative" id="expenseTotal">Rs. 0</div></div>
+      <div class="card"><div class="card-label">Left after expenses</div><div class="amount" id="leftTotal">Rs. 0</div></div>
+      <div class="card"><div class="card-label">Udhaar owed to you</div><div class="amount" id="lentTotal">Rs. 0</div></div>
+    </div>
+    <div class="section-head"><h2>Quick entry</h2></div>
+    <div class="actions">
+      <button class="action" data-open="income"><span class="emoji">💰</span><span>Add income<small>Tuition or extra money</small></span></button>
+      <button class="action" data-open="expense"><span class="emoji">🛍️</span><span>Add expense<small>Where money went</small></span></button>
+      <button class="action" data-open="lent"><span class="emoji">🤝</span><span>Give udhaar<small>Money lent to someone</small></span></button>
+      <button class="action" data-open="borrowed"><span class="emoji">🧾</span><span>Borrow money<small>Money you received</small></span></button>
+      <button class="action" data-open="repayIn"><span class="emoji">↩️</span><span>Udhaar returned<small>Someone paid you back</small></span></button>
+      <button class="action" data-open="repayOut"><span class="emoji">✅</span><span>Repay borrowed<small>You paid someone back</small></span></button>
+    </div>
+    <div class="section-head"><h2>Recent activity</h2><button class="small-btn" data-page="transactionsPage">See all</button></div>
+    <div class="list" id="recentList"></div>
+    <div class="notice">🔒 Entries are stored on this device in this browser. They do not automatically sync to another phone. Use Settings to export a backup regularly.</div>
+  </section>
+  <section id="entryPage" class="hidden">
+    <div class="section-head"><h2 id="formTitle">Add entry</h2><button class="small-btn" id="cancelForm">Cancel</button></div>
+    <form class="form-card" id="entryForm">
+      <input id="kind" type="hidden" value="income">
+      <label for="entryAmount">Amount (PKR) *</label><input id="entryAmount" type="number" min="1" step="1" placeholder="e.g. 5000" required>
+      <label for="entryTitle">What is it for? *</label><input id="entryTitle" maxlength="70" placeholder="e.g. Monthly tuition fee" required>
+      <div id="categoryWrap"><label for="entryCategory">Category</label><select id="entryCategory"><option>Tuition fee</option><option>Extra income</option><option>Gift</option><option>Refund</option><option>Other</option></select></div>
+      <div id="personWrap" class="hidden"><label for="entryPerson">Person's name *</label><input id="entryPerson" maxlength="60" placeholder="Name" ></div>
+      <label for="entryDate">Date *</label><input id="entryDate" type="date" required>
+      <label for="entryNote">Notes (optional)</label><textarea id="entryNote" maxlength="300" placeholder="Any details to remember"></textarea>
+      <button class="primary" type="submit" style="margin-top:16px">Save entry</button>
+    </form>
+    <div class="notice" id="formNotice">The app will calculate your totals automatically.</div>
+  </section>
+  <section id="transactionsPage" class="hidden">
+    <div class="section-head"><h2>Transactions</h2><button class="small-btn" data-open="income">+ Add</button></div>
+    <div class="filters"><select id="filterType"><option value="all">All entries</option><option value="income">Income</option><option value="expense">Expenses</option><option value="lent">Udhaar given</option><option value="borrowed">Money borrowed</option><option value="repayIn">Udhaar returned</option><option value="repayOut">Borrowing repaid</option></select><select id="filterMonth"><option value="all">All months</option></select></div>
+    <div class="list" id="allTransactions"></div>
+  </section>
+  <section id="loansPage" class="hidden">
+    <div class="section-head"><h2>Udhaar & borrowed money</h2></div>
+    <div class="grid">
+      <div class="card"><div class="card-label">People owe you</div><div class="amount positive" id="loansOwed">Rs. 0</div></div>
+      <div class="card"><div class="card-label">You owe people</div><div class="amount negative" id="loansYouOwe">Rs. 0</div></div>
+    </div>
+    <div class="section-head"><h2>People & balances</h2></div><div class="list" id="peopleList"></div>
+    <div class="notice">Use “Udhaar returned” when someone pays you back, and “Repay borrowed” when you return money. Enter the same person's name to see their activity together.</div>
+  </section>
+  <section id="reportsPage" class="hidden">
+    <div class="section-head"><h2>Monthly report</h2></div>
+    <div class="form-card"><label for="reportMonth">Choose month</label><input type="month" id="reportMonth">
+      <div class="report-row"><span>Income</span><strong class="positive" id="rIncome">Rs. 0</strong></div>
+      <div class="report-row"><span>Expenses</span><strong class="negative" id="rExpense">Rs. 0</strong></div>
+      <div class="report-row"><span>Left after expenses</span><strong id="rLeft">Rs. 0</strong></div>
+      <div class="report-row"><span>Udhaar given</span><strong id="rLent">Rs. 0</strong></div>
+      <div class="report-row"><span>Borrowed</span><strong id="rBorrowed">Rs. 0</strong></div>
+      <div class="report-row"><span>Udhaar returned to you</span><strong id="rRepayIn">Rs. 0</strong></div>
+      <div class="report-row"><span>You repaid</span><strong id="rRepayOut">Rs. 0</strong></div>
+    </div>
+    <div class="notice">“Left after expenses” = income minus expenses. Udhaar is shown separately because money lent or borrowed is not earned income.</div>
+  </section>
+  <section id="settingsPage" class="hidden">
+    <div class="section-head"><h2>Settings & backup</h2></div>
+    <div class="form-card">
+      <div class="item-title">Your data stays on this device</div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.5">This version uses this browser's local storage. Clearing Safari website data, private browsing, or deleting site data may erase your entries. Export backups regularly.</p>
+      <div class="backup">
+        <button class="primary" id="exportBtn">Export backup (JSON)</button>
+        <label for="importFile" style="margin-bottom:0">Restore from backup</label><input id="importFile" type="file" accept=".json,application/json">
+        <button class="secondary" id="csvBtn">Export transactions (CSV)</button>
+        <button class="secondary" id="installHelp">How to add to iPhone Home Screen</button>
+        <button class="secondary danger" id="clearBtn">Delete all entries</button>
+      </div>
+    </div>
+    <div class="notice">Currency: Pakistani Rupees (PKR). No dollars. No bank account connection required.</div>
+  </section>
+</main>
+<nav class="tabs">
+  <button class="tab active" data-page="homePage"><span>⌂</span>Home</button>
+  <button class="tab" data-page="transactionsPage"><span>↕</span>Entries</button>
+  <button class="tab" data-page="loansPage"><span>🤝</span>Udhaar</button>
+  <button class="tab" data-page="reportsPage"><span>▤</span>Reports</button>
+  <button class="tab" data-page="settingsPage"><span>⚙</span>Settings</button>
+</nav>
+<div id="toast"></div>
+<script>
+const KEY='myLedgerTransactions_v1';
+const TYPES={income:'Income',expense:'Expense',lent:'Udhaar given',borrowed:'Money borrowed',repayIn:'Udhaar returned',repayOut:'Borrowing repaid'};
+const fmt=n=>'Rs. '+Math.round(Number(n)||0).toLocaleString('en-PK');
+const today=()=>new Date().toLocaleDateString('en-CA');
+const monthNow=()=>today().slice(0,7);
+let transactions=[];
+try{transactions=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(transactions))transactions=[]}catch(e){transactions=[]}
+let currentType='income';
+function persist(){localStorage.setItem(KEY,JSON.stringify(transactions));renderAll()}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',2600)}
+function monthOf(t){return (t.date||'').slice(0,7)}
+function sum(items,type,month){return items.filter(t=>(!type||t.type===type)&&(!month||monthOf(t)===month)).reduce((s,t)=>s+Number(t.amount||0),0)}
+function signedCash(t){const a=Number(t.amount)||0;if(t.type==='income'||t.type==='borrowed'||t.type==='repayIn')return a;if(t.type==='expense'||t.type==='lent'||t.type==='repayOut')return -a;return 0}
+function cashBalance(){return transactions.reduce((s,t)=>s+signedCash(t),0)}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function displayAmount(t){const sign=['income','borrowed','repayIn'].includes(t.type)?'+':'−';return sign+fmt(t.amount)}
+function itemHtml(t){return `<div class="item"><div style="min-width:0"><div class="item-title">${escapeHtml(t.title||TYPES[t.type])}</div><div class="item-meta">${escapeHtml(TYPES[t.type])}${t.person?' · '+escapeHtml(t.person):''} · ${escapeHtml(t.date||'')}</div></div><div class="item-amount ${['income','borrowed','repayIn'].includes(t.type)?'positive':'negative'}">${displayAmount(t)}</div></div>`}
+function renderAll(){
+ const m=monthNow(), income=sum(transactions,'income',m), expenses=sum(transactions,'expense',m), left=income-expenses;
+ document.getElementById('headerMonth').textContent=new Date().toLocaleDateString('en-PK',{month:'long',year:'numeric'});
+ document.getElementById('cashBalance').textContent=fmt(cashBalance());
+ document.getElementById('incomeTotal').textContent=fmt(income);document.getElementById('expenseTotal').textContent=fmt(expenses);
+ document.getElementById('leftTotal').textContent=fmt(left);document.getElementById('leftTotal').className='amount '+(left>=0?'positive':'negative');
+ document.getElementById('lentTotal').textContent=fmt(sum(transactions,'lent')-sum(transactions,'repayIn'));
+ document.getElementById('recentList').innerHTML=transactions.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.created||0)-(a.created||0)).slice(0,5).map(itemHtml).join('')||'<div class="empty">No entries yet. Add your tuition fee or first expense above.</div>';
+ const type=document.getElementById('filterType').value, fm=document.getElementById('filterMonth').value;
+ const months=[...new Set(transactions.map(monthOf).filter(Boolean))].sort().reverse();
+ document.getElementById('filterMonth').innerHTML='<option value="all">All months</option>'+months.map(x=>`<option value="${x}">${x}</option>`).join('');
+ if(!months.includes(fm)&&fm!=='all')document.getElementById('filterMonth').value='all';else document.getElementById('filterMonth').value=fm;
+ document.getElementById('allTransactions').innerHTML=transactions.filter(t=>(type==='all'||t.type===type)&&(document.getElementById('filterMonth').value==='all'||monthOf(t)===document.getElementById('filterMonth').value)).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.created||0)-(a.created||0)).map(itemHtml).join('')||'<div class="empty">No matching entries yet.</div>';
+ const owed=sum(transactions,'lent')-sum(transactions,'repayIn'), youOwe=sum(transactions,'borrowed')-sum(transactions,'repayOut');
+ document.getElementById('loansOwed').textContent=fmt(owed);document.getElementById('loansYouOwe').textContent=fmt(youOwe);
+ const people={};transactions.filter(t=>t.person).forEach(t=>{const p=t.person.trim();if(!p)return;if(!people[p])people[p]={owed:0,youOwe:0};if(t.type==='lent')people[p].owed+=Number(t.amount);if(t.type==='repayIn')people[p].owed-=Number(t.amount);if(t.type==='borrowed')people[p].youOwe+=Number(t.amount);if(t.type==='repayOut')people[p].youOwe-=Number(t.amount)});
+ const plist=Object.entries(people).filter(([p,v])=>v.owed||v.youOwe).sort((a,b)=>a[0].localeCompare(b[0])).map(([p,v])=>`<div class="item"><div><div class="item-title">${escapeHtml(p)}</div><div class="item-meta">${v.owed>0?'Owes you '+fmt(v.owed):''}${v.owed>0&&v.youOwe>0?' · ':''}${v.youOwe>0?'You owe '+fmt(v.youOwe):''}</div></div><span class="pill">Open balance</span></div>`).join('');
+ document.getElementById('peopleList').innerHTML=plist||'<div class="empty">No outstanding udhaar. Add a “Give udhaar” or “Borrow money” entry to begin.</div>';
+ const rm=document.getElementById('reportMonth').value||m;document.getElementById('reportMonth').value=rm;
+ const set=(id,n)=>document.getElementById(id).textContent=fmt(n);
+ set('rIncome',sum(transactions,'income',rm));set('rExpense',sum(transactions,'expense',rm));set('rLeft',sum(transactions,'income',rm)-sum(transactions,'expense',rm));
+ set('rLent',sum(transactions,'lent',rm));set('rBorrowed',sum(transactions,'borrowed',rm));set('rRepayIn',sum(transactions,'repayIn',rm));set('rRepayOut',sum(transactions,'repayOut',rm));
+}
+const pages=['homePage','entryPage','transactionsPage','loansPage','reportsPage','settingsPage'];
+function showPage(id){pages.forEach(p=>document.getElementById(p).classList.toggle('hidden',p!==id));document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.page===id));window.scrollTo(0,0)}
+document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+function openEntry(type){
+ currentType=type;document.getElementById('kind').value=type;document.getElementById('entryForm').reset();document.getElementById('entryDate').value=today();
+ document.getElementById('entryPerson').required=['lent','borrowed','repayIn','repayOut'].includes(type);
+ document.getElementById('personWrap').classList.toggle('hidden',!document.getElementById('entryPerson').required);
+ const cats={income:['Tuition fee','Extra income','Gift','Refund','Other'],expense:['Food / snacks','Transport','Mobile / internet','Shopping / personal','Family contribution','Education','Health','Bills','Other'],lent:['Udhaar given'],borrowed:['Money borrowed'],repayIn:['Udhaar returned'],repayOut:['Borrowing repaid']};
+ document.getElementById('categoryWrap').classList.toggle('hidden',!['income','expense'].includes(type));
+ document.getElementById('entryCategory').innerHTML=(cats[type]||['Other']).map(c=>`<option>${c}</option>`).join('');
+ document.getElementById('formTitle').textContent=({income:'Add income',expense:'Add expense',lent:'Give udhaar',borrowed:'Record borrowed money',repayIn:'Record udhaar returned',repayOut:'Record repayment'})[type];
+ document.getElementById('formNotice').textContent=type==='lent'?'This reduces your cash balance and increases the amount owed to you.':type==='borrowed'?'This increases your cash balance but is not income you earned.':type==='repayIn'?'This increases cash and reduces the amount owed to you.':type==='repayOut'?'This reduces cash and reduces the amount you owe.':'Your totals update automatically after saving.';
+ showPage('entryPage');document.getElementById('entryAmount').focus();
+}
+document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>openEntry(b.dataset.open)));
+document.getElementById('cancelForm').addEventListener('click',()=>showPage('homePage'));
+document.getElementById('entryForm').addEventListener('submit',e=>{
+ e.preventDefault();const amount=Number(document.getElementById('entryAmount').value),title=document.getElementById('entryTitle').value.trim(),date=document.getElementById('entryDate').value;
+ if(!Number.isFinite(amount)||amount<=0){toast('Please enter an amount above zero.');return}
+ const type=document.getElementById('kind').value,person=document.getElementById('entryPerson').value.trim();
+ if(['lent','borrowed','repayIn','repayOut'].includes(type)&&!person){toast("Please enter the person's name.");return}
+ if(['repayIn','repayOut'].includes(type)){
+   const related=type==='repayIn'?'lent':'borrowed';
+   const balance=transactions.filter(t=>t.person?.trim().toLowerCase()===person.toLowerCase()).reduce((s,t)=>s+(t.type===related?Number(t.amount):t.type===type?-Number(t.amount):0),0);
+   if(amount>balance){if(!confirm('This repayment is more than the recorded outstanding amount ('+fmt(Math.max(0,balance))+'). Save anyway?'))return}
+ }
+ transactions.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),type,amount:Math.round(amount),title,category:document.getElementById('entryCategory').value,date,person,note:document.getElementById('entryNote').value.trim(),created:Date.now()});
+ persist();showPage('homePage');toast('Entry saved on this device.');
+});
+document.getElementById('filterType').addEventListener('change',renderAll);document.getElementById('filterMonth').addEventListener('change',renderAll);document.getElementById('reportMonth').addEventListener('change',renderAll);
+document.getElementById('exportBtn').addEventListener('click',()=>download('myledger-backup-'+today()+'.json',JSON.stringify({app:'MyLedger',version:1,exportedAt:new Date().toISOString(),transactions},null,2),'application/json'));
+function download(name,content,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+document.getElementById('csvBtn').addEventListener('click',()=>{const rows=[['Date','Type','Title','Category','Person','Amount PKR','Notes'],...transactions.map(t=>[t.date,TYPES[t.type],t.title,t.category||'',t.person||'',t.amount,t.note||''])];const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');download('myledger-transactions-'+today()+'.csv','\ufeff'+csv,'text/csv;charset=utf-8')});
+document.getElementById('importFile').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text()),arr=Array.isArray(data)?data:data.transactions;if(!Array.isArray(arr)||!arr.every(t=>t&&TYPES[t.type]&&Number(t.amount)>=0))throw new Error('Invalid backup');if(!confirm('Restore '+arr.length+' entries? This replaces entries currently on this device.'))return;transactions=arr;persist();toast('Backup restored.');}catch(err){alert('Could not restore this file. Please select a MyLedger JSON backup.')}e.target.value=''});
+document.getElementById('clearBtn').addEventListener('click',()=>{if(confirm('Delete ALL MyLedger entries from this browser? Export a backup first if needed.')){transactions=[];persist();toast('All entries deleted.')}});
+document.getElementById('installHelp').addEventListener('click',()=>alert('On your iPhone: open the hosted app link in Safari → tap Share (square with arrow) → Add to Home Screen → Add. Keep this app link bookmarked. Entries are stored separately on each device/browser.'));
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+renderAll();
+</script>
+</body>
+</html>
